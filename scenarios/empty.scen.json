@@ -1,0 +1,102 @@
+{
+    "name": "empty",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "esdt": {
+                        "str:WEGLD-abcdef": "1,000,000"
+                    }
+                },
+                "sc:contract_template": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "code": "file:../output/empty.wasm"
+                }
+            },
+            "newAddresses": [
+                {
+                    "creatorAddress": "address:owner",
+                    "creatorNonce": "0",
+                    "newAddress": "sc:parent"
+                },
+                {
+                    "creatorAddress": "sc:parent",
+                    "creatorNonce": "0",
+                    "newAddress": "sc:child"
+                }
+            ]
+        },
+        {
+            "step": "scDeploy",
+            "id": "deploy",
+            "tx": {
+                "from": "address:owner",
+                "contractCode": "file:../output/empty.wasm",
+                "arguments": [],
+                "gasLimit": "5,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "logs": [],
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "deploy child contract",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:parent",
+                "function": "deployAnotherContract",
+                "arguments": [
+                    "sc:contract_template"
+                ],
+                "gasLimit": "300,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": "*",
+                "message": "",
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "call with esdt payment on child contract",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:child",
+                "function": "syncCallForwardPayment",
+                "arguments": [
+                    "sc:parent"
+                ],
+                "esdtValue": [
+                    {
+                        "tokenIdentifier": "str:WEGLD-abcdef",
+                        "nonce": "0",
+                        "value": "1,000,000"
+                    }
+                ],
+
+                "gasLimit": "300,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": "*",
+                "message": "",
+                "status": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        }
+    ]
+}
